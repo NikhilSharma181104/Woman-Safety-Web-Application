@@ -8,7 +8,7 @@ import { CheckInCard } from '../components/CheckInCard';
 import { CheckInHistoryTable } from '../components/CheckInHistoryTable';
 import { ContactList } from '../components/ContactList';
 import { AddContactForm } from '../components/AddContactForm';
-import { ProfileSettingsForm } from '../components/ProfileSettingsForm';
+import { ProfileCard } from '../components/ProfileCard';
 import { useLocationService } from '../hooks/useLocationService';
 import type { EmergencyContact } from '../types';
 
@@ -92,6 +92,16 @@ export default function DashboardPage() {
            *   - 1280px+ (xl): three columns
            *   - 2560px (2xl): three columns with wider max-width
            */}
+          
+          {/* Profile card - Full width at top */}
+          <section 
+            className="card p-6"
+            role="region"
+            aria-labelledby="profile-heading"
+          >
+            <ProfileCard />
+          </section>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {/* Emergency contacts list - FIRST on mobile (most critical) */}
             <section 
@@ -122,15 +132,6 @@ export default function DashboardPage() {
               aria-labelledby="add-contact-heading"
             >
               <AddContactForm onAdded={handleContactAdded} />
-            </section>
-
-            {/* Profile settings */}
-            <section 
-              className="card p-6 lg:col-span-2 xl:col-span-1"
-              role="region"
-              aria-labelledby="profile-heading"
-            >
-              <ProfileSettingsForm />
             </section>
 
             {/* Check-in history — full width, lazy loaded */}
