@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Soft Guardian Design System ── */
+
+@layer base {
+  /* Import Plus Jakarta Sans font */
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+  
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  }
+  
+  /* Focus visible styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-brand-primary ring-offset-2 ring-offset-slate-50;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Skip to content link for keyboard users */
+  .skip-to-content {
+    @apply absolute -top-full left-0 bg-brand-primary text-white px-6 py-3 rounded-br-lg font-semibold z-50;
+    @apply focus:top-0 transition-all;
+  }
+  
+  /* Button base styles */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200;
+    @apply focus-visible:ring-2 focus-visible:ring-offset-2;
+    min-height: 44px; /* Touch target minimum */
+    min-width: 44px;
+  }
+  
+  .btn-primary {
+    @apply bg-brand-primary text-slate-900;
+    @apply hover:bg-brand-dark hover:text-white;
+    @apply shadow-soft-md hover:shadow-soft-lg;
+    @apply focus-visible:ring-brand-primary;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-slate-700 border border-slate-200;
+    @apply hover:bg-slate-50 hover:border-slate-300;
+    @apply shadow-soft hover:shadow-soft-md;
+    @apply focus-visible:ring-slate-300;
+  }
+  
+  .btn-emergency {
+    @apply bg-emergency text-white;
+    @apply hover:bg-emergency-dark;
+    @apply shadow-soft-lg shadow-emergency/30 hover:shadow-glow-red;
+    @apply focus-visible:ring-emergency;
+  }
+  
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-2xl border border-slate-200 shadow-soft;
+    @apply hover:shadow-soft-md transition-shadow duration-200;
+  }
+  
+  /* Input styles */
+  .input {
+    @apply w-full px-4 py-3 rounded-xl border border-slate-200 bg-white;
+    @apply text-slate-800 placeholder:text-slate-400;
+    @apply focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20;
+    @apply transition-colors duration-200;
+    min-height: 44px; /* Touch target minimum */
+  }
+  
+  .input-error {
+    @apply border-emergency focus:border-emergency focus:ring-emergency/20;
+  }
+  
+  /* Label styles */
+  .label {
+    @apply block text-sm font-semibold text-slate-700 mb-2;
+  }
+  
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold;
+  }
+  
+  .badge-success {
+    @apply bg-success-light text-success-dark;
+  }
+  
+  .badge-error {
+    @apply bg-emergency-light text-emergency-dark;
+  }
+  
+  .badge-warning {
+    @apply bg-warning-light text-warning-dark;
+  }
+  
+  .badge-info {
+    @apply bg-info-light text-info-dark;
+  }
+}
+
+@layer utilities {
+  /* Solid color text */
+  .text-gradient {
+    @apply text-brand-primary;
+  }
+  
+  /* Static background */
+  .bg-gradient-animated {
+    background: #F8F9FE;
+  }
+}
