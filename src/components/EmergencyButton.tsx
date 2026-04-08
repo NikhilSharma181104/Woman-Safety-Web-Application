@@ -46,11 +46,18 @@ export function EmergencyButton({
   }
 
   async function triggerEmergencyAlert() {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id) {
+      console.error('No user session found');
+      alert('Error: Not logged in');
+      return;
+    }
     
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      console.log('Triggering emergency alert for user:', session.user.id);
+      console.log('Supabase URL:', supabaseUrl);
       
       // Call Supabase Edge Function to send automated SMS and calls
       const response = await fetch(
@@ -68,15 +75,28 @@ export function EmergencyButton({
         }
       );
       
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Response error:', errorText);
+        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
       }
       
       const result = await response.json();
       console.log('Emergency alert dispatched:', result);
       
+      if (result.dispatched && result.dispatched.length > 0) {
+        console.log('✅ SMS sent to:', result.dispatched.map((c: any) => c.name).join(', '));
+      }
+      
       if (result.failed && result.failed.length > 0) {
-        console.warn('Some alerts failed:', result.failed);
+        console.warn('❌ Failed to send to:', result.failed.map((c: any) => c.name).join(', '));
+        alert(`Warning: Failed to alert ${result.failed.length} contact(s). Check console for details.`);
+      }
+      
+      if (!result.dispatched || result.dispatched.length === 0) {
+        alert('No emergency contacts found. Please add contacts first.');
       }
     } catch (error) {
       console.error('Failed to dispatch emergency alert:', error);

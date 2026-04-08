@@ -8,7 +8,7 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const TWILIO_ACCOUNT_SID = Deno.env.get('TWILIO_ACCOUNT_SID')!;
 const TWILIO_AUTH_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN')!;
 const TWILIO_FROM_NUMBER = Deno.env.get('TWILIO_FROM_NUMBER')!;
-const FCM_SERVER_KEY = Deno.env.get('FCM_SERVER_KEY')!;
+const FCM_SERVER_KEY = Deno.env.get('FCM_SERVER_KEY'); // Optional - for push notifications
 
 const TWILIO_SMS_URL = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
 const TWILIO_CALLS_URL = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Calls.json`;
@@ -58,19 +58,44 @@ function buildSmsBody(
 }
 
 async function sendSms(to: string, body: string): Promise<boolean> {
-  const credentials = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
-  const params = new URLSearchParams({ To: to, From: TWILIO_FROM_NUMBER, Body: body });
+  try {
+    // Ensure phone number has + prefix for international format
+    let phoneNumber = to.trim();
+    if (!phoneNumber.startsWith('+')) {
+      // If it's a 10-digit Indian number, add +91
+      if (phoneNumber.length === 10 && /^\d{10}$/.test(phoneNumber)) {
+        phoneNumber = `+91${phoneNumber}`;
+      } else if (phoneNumber.length === 12 && phoneNumber.startsWith('91')) {
+        // If it starts with 91 but no +, add the +
+        phoneNumber = `+${phoneNumber}`;
+      } else {
+        // Default: just add + if missing
+        phoneNumber = `+${phoneNumber}`;
+      }
+    }
 
-  const res = await fetch(TWILIO_SMS_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Basic ${credentials}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: params.toString(),
-  });
+    const credentials = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+    const params = new URLSearchParams({ To: phoneNumber, From: TWILIO_FROM_NUMBER, Body: body });
 
-  return res.ok;
+    console.log('Sending SMS to:', phoneNumber, '(original:', to, ')');
+
+    const res = await fetch(TWILIO_SMS_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${credentials}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params.toString(),
+    });
+
+    const responseText = await res.text();
+    console.log('Twilio SMS response:', { status: res.status, ok: res.ok, body: responseText });
+
+    return res.ok;
+  } catch (error) {
+    console.error('SMS send error:', error);
+    return false;
+  }
 }
 
 async function makeCall(to: string, message: string): Promise<boolean> {
@@ -99,6 +124,11 @@ async function makeCall(to: string, message: string): Promise<boolean> {
 }
 
 async function sendPush(contact: Contact, body: string): Promise<void> {
+  // Skip if FCM is not configured
+  if (!FCM_SERVER_KEY) {
+    return;
+  }
+  
   // FCM requires a device token; we use the contact email as a topic fallback
   await fetch(FCM_URL, {
     method: 'POST',
@@ -182,6 +212,16 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    // Log environment check
+    console.log('Environment check:', {
+      hasSupabaseUrl: !!SUPABASE_URL,
+      hasServiceRole: !!SUPABASE_SERVICE_ROLE_KEY,
+      hasTwilioSid: !!TWILIO_ACCOUNT_SID,
+      hasTwilioAuth: !!TWILIO_AUTH_TOKEN,
+      hasTwilioFrom: !!TWILIO_FROM_NUMBER,
+      hasFcm: !!FCM_SERVER_KEY,
+    });
+
     const { userId, type } = (await req.json()) as { userId: string; type: AlertType };
 
     if (!userId || !type) {
@@ -190,6 +230,8 @@ Deno.serve(async (req: Request) => {
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
+    console.log('Processing alert:', { userId, type });
 
     // 1. Fetch user profile
     const { data: profile } = await supabase
@@ -205,6 +247,8 @@ Deno.serve(async (req: Request) => {
       .from('emergency_contacts')
       .select('id, name, phone, email')
       .eq('user_id', userId);
+
+    console.log('Contacts fetched:', { count: contacts?.length, error: contactsError });
 
     if (contactsError || !contacts || contacts.length === 0) {
       return new Response(JSON.stringify({ dispatched: [], failed: [] }), {
