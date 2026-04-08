@@ -2,8 +2,6 @@
 
 A modern, accessible personal safety application built with React, TypeScript, Supabase, and Twilio. SafeTNet helps users stay safe by providing emergency alerts, check-ins, and location sharing with trusted contacts.
 
-![SafeTNet](public/hero-woman.png)
-
 ## ✨ Features
 
 - 🚨 **Emergency SOS Button** - One-tap emergency alerts with automated SMS
