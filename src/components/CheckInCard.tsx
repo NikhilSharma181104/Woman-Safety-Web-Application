@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { IS_DEMO, demoData } from '../lib/demo';
 import { useAppStore } from '../store/useAppStore';
 import type { CheckIn } from '../types';
 
@@ -41,12 +40,6 @@ export function CheckInCard({ checkIn }: CheckInCardProps) {
     setError(null);
 
     try {
-      if (IS_DEMO) {
-        demoData.deactivateCheckIn(checkIn.id);
-        setActiveCheckIn(null);
-        return;
-      }
-
       const { error: updateError } = await supabase
         .from('check_ins')
         .update({ status: 'completed' })

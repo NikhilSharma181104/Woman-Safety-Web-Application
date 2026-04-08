@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { IS_DEMO, demoData } from '../lib/demo';
 import { validateE164Phone, validateEmail } from '../utils/validators';
 import type { EmergencyContact } from '../types';
 
@@ -50,14 +49,6 @@ export function ContactCard({ contact, onUpdate, onRemove }: ContactCardProps) {
     setLoading(true);
     setSubmitError(null);
 
-    if (IS_DEMO) {
-      const updated = demoData.updateContact(contact.id, { name: name.trim(), phone: phone.trim(), email: email.trim() });
-      if (updated) onUpdate(updated);
-      setLoading(false);
-      setEditing(false);
-      return;
-    }
-
     const { data, error } = await supabase
       .from('emergency_contacts')
       .update({ name: name.trim(), phone: phone.trim(), email: email.trim() })
@@ -87,13 +78,6 @@ export function ContactCard({ contact, onUpdate, onRemove }: ContactCardProps) {
 
   async function handleRemove() {
     setLoading(true);
-
-    if (IS_DEMO) {
-      demoData.removeContact(contact.id);
-      onRemove(contact.id);
-      setLoading(false);
-      return;
-    }
 
     const { error } = await supabase
       .from('emergency_contacts')

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { IS_DEMO, demoData } from '../lib/demo';
 import { useAppStore } from '../store/useAppStore';
 import { validateCheckInDuration } from '../utils/validators';
 import type { CheckIn } from '../types';
@@ -68,18 +67,6 @@ export function CheckInForm() {
     setSubmitError(null);
 
     try {
-      if (IS_DEMO) {
-        const checkIn = demoData.addCheckIn({
-          destinationLabel: destinationLabel.trim(),
-          durationMinutes: durationMinutes as number,
-        });
-        setActiveCheckIn(checkIn);
-        setDestinationLabel('');
-        setDurationMinutes('');
-        setSubmitting(false);
-        return;
-      }
-
       const now = new Date();
       const expiresAt = new Date(now.getTime() + (durationMinutes as number) * 60 * 1000);
 

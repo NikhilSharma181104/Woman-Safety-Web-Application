@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { IS_DEMO, demoData } from '../lib/demo';
 import { useAppStore } from '../store/useAppStore';
 import { ContactCard } from './ContactCard';
 import type { EmergencyContact } from '../types';
@@ -12,11 +11,6 @@ export function ContactList() {
 
   useEffect(() => {
     if (!session?.user?.id) return;
-
-    if (IS_DEMO) {
-      setContacts(demoData.getContacts());
-      return;
-    }
 
     async function fetchContacts() {
       const { data, error } = await supabase

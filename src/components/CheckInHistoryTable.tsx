@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { IS_DEMO, demoData } from '../lib/demo';
 import { useAppStore } from '../store/useAppStore';
 import type { CheckIn } from '../types';
 
@@ -28,12 +27,6 @@ export function CheckInHistoryTable() {
 
   useEffect(() => {
     if (!session?.user?.id) return;
-
-    if (IS_DEMO) {
-      setHistory(demoData.getCheckIns());
-      setLoading(false);
-      return;
-    }
 
     async function fetchHistory() {
       setLoading(true);
