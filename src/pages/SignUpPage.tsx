@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase'
-import { useAppStore } from '../store/useAppStore'
 import { validateEmail, validatePassword } from '../utils/validators'
 
 type FormState = {
@@ -26,8 +25,6 @@ type FieldErrors = Partial<Record<keyof FormState, string>>
  * Validates: Requirements 5.1, 5.5, 5.7, 9.1
  */
 export default function SignUpPage() {
-  const navigate = useNavigate()
-  const setSession = useAppStore((s) => s.setSession)
   const [form, setForm] = useState<FormState>({ email: '', password: '', confirmPassword: '' })
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitted, setSubmitted] = useState(false)

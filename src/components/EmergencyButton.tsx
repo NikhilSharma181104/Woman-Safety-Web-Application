@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '../lib/supabase';
 import { useAppStore } from '../store/useAppStore';
 
 export interface EmergencyButtonProps {
