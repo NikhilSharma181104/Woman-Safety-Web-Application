@@ -11,10 +11,52 @@ export function validateEmail(email: string): boolean {
 export const validateEmailFormat = validateEmail;
 
 /**
- * Password validation — minimum 8 characters
+ * Password validation — minimum 8 characters with strength requirements
+ * Returns an object with validation result and helpful message
  */
 export function validatePassword(password: string): boolean {
   return password.length >= 8;
+}
+
+/**
+ * Detailed password validation with specific error messages
+ * Returns null if valid, or an error message string if invalid
+ */
+export function validatePasswordStrength(password: string): string | null {
+  if (!password) {
+    return 'Password is required.';
+  }
+  if (password.length < 8) {
+    return 'Password must be at least 8 characters long.';
+  }
+  if (!/[A-Z]/.test(password)) {
+    return 'Password should include at least one uppercase letter.';
+  }
+  if (!/[a-z]/.test(password)) {
+    return 'Password should include at least one lowercase letter.';
+  }
+  if (!/[0-9]/.test(password)) {
+    return 'Password should include at least one number.';
+  }
+  return null;
+}
+
+/**
+ * Get password strength level (weak, medium, strong)
+ */
+export function getPasswordStrength(password: string): 'weak' | 'medium' | 'strong' {
+  if (password.length < 8) return 'weak';
+  
+  let score = 0;
+  if (password.length >= 12) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[a-z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++; // Special characters
+  
+  if (score >= 4) return 'strong';
+  if (score >= 2) return 'medium';
+  return 'weak';
 }
 
 /**

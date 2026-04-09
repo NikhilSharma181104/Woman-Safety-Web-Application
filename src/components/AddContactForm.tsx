@@ -18,6 +18,7 @@ export function AddContactForm({ onAdded }: AddContactFormProps) {
   const [errors, setErrors] = useState<{ name?: string; phone?: string; email?: string }>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const atLimit = contacts.length >= 5;
 
@@ -81,13 +82,28 @@ export function AddContactForm({ onAdded }: AddContactFormProps) {
     setPhone('');
     setEmail('');
     setErrors({});
+    setIsExpanded(false); // Collapse after adding
   }
 
   return (
     <section aria-label="Add emergency contact">
-      <h2 id="add-contact-heading" className="text-lg font-bold text-slate-900 mb-4">
-        Add Emergency Contact
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 id="add-contact-heading" className="text-lg font-bold text-slate-900">
+          Add Emergency Contact
+        </h2>
+        {!isExpanded && (
+          <button
+            onClick={() => setIsExpanded(true)}
+            disabled={atLimit}
+            className="text-sm text-brand-primary hover:text-brand-dark font-semibold flex items-center gap-1"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Add
+          </button>
+        )}
+      </div>
 
       {atLimit && (
         <div role="alert" className="p-3 rounded-xl bg-warning-light border border-warning text-warning-dark text-sm mb-4">
@@ -95,12 +111,24 @@ export function AddContactForm({ onAdded }: AddContactFormProps) {
         </div>
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-3"
-        aria-disabled={atLimit}
-        noValidate
-      >
+      {!isExpanded ? (
+        <button
+          onClick={() => setIsExpanded(true)}
+          disabled={atLimit}
+          className="btn btn-secondary w-full py-3 flex items-center justify-center gap-2"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+          </svg>
+          Add New Contact
+        </button>
+      ) : (
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-3"
+          aria-disabled={atLimit}
+          noValidate
+        >
         <div>
           <label htmlFor="contact-name" className="label">
             Name
@@ -181,7 +209,20 @@ export function AddContactForm({ onAdded }: AddContactFormProps) {
         >
           {loading ? 'Adding…' : 'Add Contact'}
         </button>
+        
+        <button
+          type="button"
+          onClick={() => {
+            setIsExpanded(false);
+            setErrors({});
+            setSubmitError(null);
+          }}
+          className="btn btn-secondary w-full py-2"
+        >
+          Cancel
+        </button>
       </form>
+      )}
     </section>
   );
 }

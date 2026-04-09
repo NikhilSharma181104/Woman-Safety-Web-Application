@@ -87,22 +87,26 @@ export default function DashboardPage() {
 
           {/*
            * Responsive grid - Mobile-first improvements:
-           *   - 320px-1023px (xs-md): single column (emergency contacts first)
-           *   - 1024px+ (lg): two columns
-           *   - 1280px+ (xl): three columns
-           *   - 2560px (2xl): three columns with wider max-width
+           * SAFETY-FIRST LAYOUT:
+           * 1. Active Check-In (if exists) - MOST CRITICAL
+           * 2. Emergency Contacts - SECOND PRIORITY  
+           * 3. Add Contact + New Check-In - QUICK ACTIONS
+           * 4. Profile - Less critical
+           * 5. History - Bottom
            */}
           
-          {/* Profile card - Full width at top */}
-          <section 
-            className="card p-6"
-            role="region"
-            aria-labelledby="profile-heading"
-          >
-            <ProfileCard />
-          </section>
-
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            {/* Active check-in card - HIGHEST PRIORITY when active */}
+            {activeCheckIn && (
+              <section 
+                className="card p-6 lg:col-span-2 xl:col-span-3 border-2 border-info"
+                role="region"
+                aria-labelledby="checkin-heading"
+              >
+                <CheckInCard checkIn={activeCheckIn} />
+              </section>
+            )}
+
             {/* Emergency contacts list - FIRST on mobile (most critical) */}
             <section 
               className="card p-6"
@@ -112,18 +116,16 @@ export default function DashboardPage() {
               <ContactList />
             </section>
 
-            {/* Active check-in card or check-in form */}
-            <section 
-              className="card p-6"
-              role="region"
-              aria-labelledby="checkin-heading"
-            >
-              {activeCheckIn ? (
-                <CheckInCard checkIn={activeCheckIn} />
-              ) : (
+            {/* New check-in form or Add contact - side by side on larger screens */}
+            {!activeCheckIn && (
+              <section 
+                className="card p-6"
+                role="region"
+                aria-labelledby="checkin-heading"
+              >
                 <CheckInForm />
-              )}
-            </section>
+              </section>
+            )}
 
             {/* Add contact form */}
             <section 
@@ -132,6 +134,15 @@ export default function DashboardPage() {
               aria-labelledby="add-contact-heading"
             >
               <AddContactForm onAdded={handleContactAdded} />
+            </section>
+
+            {/* Profile card - moved down, less prominent */}
+            <section 
+              className="card p-6 lg:col-span-2 xl:col-span-3"
+              role="region"
+              aria-labelledby="profile-heading"
+            >
+              <ProfileCard />
             </section>
 
             {/* Check-in history — full width, lazy loaded */}
@@ -143,6 +154,9 @@ export default function DashboardPage() {
               <CheckInHistoryTable />
             </section>
           </div>
+
+          {/* Bottom padding for emergency button on mobile */}
+          <div className="h-32 lg:h-0" aria-hidden="true" />
         </div>
       </motion.div>
     </>

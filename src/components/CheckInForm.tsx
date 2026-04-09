@@ -5,10 +5,14 @@ import { validateCheckInDuration } from '../utils/validators';
 import type { CheckIn } from '../types';
 
 const PRESET_DURATIONS = [
-  { label: '15 min', value: 15 },
-  { label: '30 min', value: 30 },
-  { label: '1 hr', value: 60 },
-  { label: '2 hr', value: 120 },
+  { label: '5 min', value: 5, desc: 'Quick errand' },
+  { label: '10 min', value: 10, desc: 'ATM/Store' },
+  { label: '15 min', value: 15, desc: 'Short walk' },
+  { label: '30 min', value: 30, desc: 'Nearby' },
+  { label: '45 min', value: 45, desc: 'Commute' },
+  { label: '1 hr', value: 60, desc: 'Across town' },
+  { label: '2 hr', value: 120, desc: 'Long trip' },
+  { label: '3 hr', value: 180, desc: 'Extended' },
 ];
 
 export function CheckInForm() {
@@ -141,20 +145,21 @@ export function CheckInForm() {
       {/* Duration presets */}
       <div>
         <span className="label">How long will it take?</span>
-        <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
           {PRESET_DURATIONS.map((p) => (
             <button
               key={p.value}
               type="button"
               onClick={() => handlePreset(p.value)}
               aria-label={`Set duration to ${p.label}`}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+              className={`px-3 py-2 rounded-xl text-sm font-semibold transition-colors ${
                 durationMinutes === p.value
                   ? 'bg-brand-primary text-white'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
-              {p.label}
+              <div className="font-bold">{p.label}</div>
+              <div className="text-xs opacity-75">{p.desc}</div>
             </button>
           ))}
         </div>

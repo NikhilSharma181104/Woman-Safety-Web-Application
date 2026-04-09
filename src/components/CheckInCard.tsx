@@ -57,7 +57,57 @@ export function CheckInCard({ checkIn }: CheckInCardProps) {
 
   const isExpired = remaining === 0;
   const remainingMinutes = Math.floor(remaining / 60000);
-  const isUrgent = remainingMinutes < 5;
+  
+  // Progressive urgency levels for better UX
+  const getUrgencyLevel = () => {
+    if (isExpired) return 'expired';
+    if (remainingMinutes < 5) return 'critical';
+    if (remainingMinutes < 10) return 'urgent';
+    if (remainingMinutes < 30) return 'warning';
+    return 'safe';
+  };
+  
+  const urgencyLevel = getUrgencyLevel();
+  
+  const urgencyStyles = {
+    expired: {
+      bg: 'bg-emergency-light border-2 border-emergency',
+      text: 'text-emergency',
+      badge: 'badge-error',
+      badgeDot: 'bg-emergency',
+      label: 'Expired'
+    },
+    critical: {
+      bg: 'bg-emergency-light border-2 border-emergency',
+      text: 'text-emergency',
+      badge: 'badge-error',
+      badgeDot: 'bg-emergency animate-pulse',
+      label: 'Critical'
+    },
+    urgent: {
+      bg: 'bg-orange-50 border-2 border-orange-400',
+      text: 'text-orange-700',
+      badge: 'bg-orange-100 text-orange-700 border-orange-300',
+      badgeDot: 'bg-orange-500 animate-pulse',
+      label: 'Urgent'
+    },
+    warning: {
+      bg: 'bg-yellow-50 border-2 border-yellow-400',
+      text: 'text-yellow-700',
+      badge: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+      badgeDot: 'bg-yellow-500',
+      label: 'Warning'
+    },
+    safe: {
+      bg: 'bg-success-light border-2 border-success',
+      text: 'text-success-dark',
+      badge: 'badge-success',
+      badgeDot: 'bg-success animate-pulse',
+      label: 'Active'
+    }
+  };
+  
+  const currentStyle = urgencyStyles[urgencyLevel];
 
   return (
     <div
@@ -71,31 +121,27 @@ export function CheckInCard({ checkIn }: CheckInCardProps) {
           <p className="text-sm text-slate-600 mt-1">{checkIn.destinationLabel}</p>
         </div>
         
-        <span className={`badge ${
-          isExpired ? 'badge-error' : 'badge-info'
-        }`}>
-          <span className={`w-2 h-2 rounded-full ${
-            isExpired ? 'bg-emergency' : 'bg-info animate-pulse'
-          }`} />
-          {isExpired ? 'Expired' : 'Active'}
+        <span className={`badge ${currentStyle.badge}`}>
+          <span className={`w-2 h-2 rounded-full ${currentStyle.badgeDot}`} />
+          {currentStyle.label}
         </span>
       </div>
 
-      {/* Countdown timer with urgency styling */}
+      {/* Countdown timer with progressive urgency styling */}
       <div 
         aria-label="Time remaining" 
-        className={`text-center py-8 rounded-xl transition-colors ${
-          isUrgent && !isExpired
-            ? 'bg-emergency-light border-2 border-emergency' 
-            : 'bg-slate-100'
-        }`}
+        className={`text-center py-8 rounded-xl transition-colors ${currentStyle.bg}`}
       >
-        <span className={`text-5xl font-mono font-bold tabular-nums ${
-          isUrgent && !isExpired ? 'text-emergency' : 'text-slate-900'
-        }`}>
+        <span className={`text-5xl font-mono font-bold tabular-nums ${currentStyle.text}`}>
           {formatCountdown(remaining)}
         </span>
-        <p className="text-sm text-slate-600 mt-2">Time remaining</p>
+        <p className="text-sm text-slate-600 mt-2">
+          {isExpired ? 'Check-in expired!' : 
+           urgencyLevel === 'critical' ? 'Hurry! Time running out' :
+           urgencyLevel === 'urgent' ? 'Please check in soon' :
+           urgencyLevel === 'warning' ? 'Check in when you arrive' :
+           'Time remaining'}
+        </p>
       </div>
 
       {error && (
